@@ -13,24 +13,26 @@ table = [
 table2 = [
 	[" 1", "Daftar Pegawai SPR Baru"],
 	[" 2", "Daftar Ejen Pilihan Raya Baru"],
-	[" 3", "Daftar User Baru"], 					#belum
-	[" 4", "Daftar calon Pilihan Raya"], 			#belum
+	[" 3", "Daftar User Baru"],
+	[" 4", "Daftar calon Pilihan Raya"],
+	[" 5", "Lihat Kesemua Calon"],					#belum
+	[" 6", "Lihat Keputusan Penuh Pilihan Raya"], 	#belum
+	[" 7", "Lihat Keputusan Pilihan Raya"], 		#belum
+	[" 8", "Lihat Keputusan Penuh Pilihan Raya"], 	#belum
+	[" 9", "Undi"], 								#belum
+	[" 10", "Log Out"] 								#belum
+]
+
+table3 = [
+	[" 1", "Daftar Ejen Pilihan Raya Baru"],
+	[" 2", "Daftar User Baru"],
+	[" 3", "Daftar calon Pilihan Raya"],
+	[" 4", "Lihat Kesemua Calon"],					#belum
 	[" 5", "Lihat Bilangan Kehadiran Pilihan Raya"],#belum
 	[" 6", "Lihat Keputusan Pilihan Raya"], 		#belum
 	[" 7", "Lihat Keputusan Penuh Pilihan Raya"], 	#belum
 	[" 8", "Undi"], 								#belum
 	[" 9", "Log Out"] 								#belum
-]
-
-table3 = [
-	[" 1", "Daftar Ejen Pilihan Raya Baru"],
-	[" 2", "Daftar User Baru"], 					#belum
-	[" 3", "Daftar calon Pilihan Raya"], 			#belum
-	[" 4", "Lihat Bilangan Kehadiran Pilihan Raya"],#belum
-	[" 5", "Lihat Keputusan Pilihan Raya"], 		#belum
-	[" 6", "Lihat Keputusan Penuh Pilihan Raya"], 	#belum
-	[" 7", "Undi"], 								#belum
-	[" 8", "Log Out"] 								#belum
 ]
 
 def database():
@@ -211,65 +213,67 @@ def daftaradminspr(username):
 			projectdatabase = database()
 			mydbse = projectdatabase.cursor()
 			mydbse.execute("SELECT * FROM user ")
-			account = mydbse.fetchone()
+			account = mydbse.fetchall()
 
 			if account:
-				if bcrypt.checkpw(ic.encode('utf-8'), account[0].encode('utf-8')):
-					print("Nombor Ic Telah didaftar. Sila Masukkan Nombor Ic yang lain.")
-					sprsystem(username)
-				else:
-					username2 = input("Sila Masukkan Username : ")
-					try:
-						projectdatabase = database()
-						mydbse = projectdatabase.cursor()
-						mydbse.execute("SELECT * FROM spr WHERE username=%s",
-							(username2,))
-						sameinpt = mydbse.fetchone()
-
-						if not sameinpt:
-							passwrd = "123"
-							level = input("Account yang anda daftar sebagai ? [Admin atau staf] : ")
-							level=level.lower()
-							if level=="admin" or level == "staf":
-								fullname = input("Sila Masukkan Nama Penuh : ")
-								fullname = fullname.upper()
-								saluran = random.randint(1, 9)
-								masa = "08:00 AM - 06:00 PM"
-								undianparti = "Belum Undi"
-								undianparti = bcrypt.hashpw(undianparti.encode('utf-8'), bcrypt.gensalt())
-								undian = 0
-								passwrd = bcrypt.hashpw(passwrd.encode('utf-8'), bcrypt.gensalt())
-								ic = bcrypt.hashpw(ic.encode('utf-8'), bcrypt.gensalt())
-
-								mydbse.execute("INSERT INTO spr"
-									"(ic, username, password, level)"
-									"VALUES(%s, %s , %s ,%s)",
-									(ic, username2, passwrd , level))
-
-								mydbse.execute("INSERT INTO user"
-									"(ic, fullname, date, gender, pusatmengundi, saluran, masa, undianparti, undian)"
-									"VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-									(ic, fullname, DOB, jantina, negeri, saluran, masa, undianparti, undian))
-
-								projectdatabase.commit()
-								print("Pendaftaran Selesai ...")
-								print("\n-------------------------------------------------------------\n")
-								print("Nama Penuh : "+fullname+"\nTarikh Lahir : "+DOB+"\nUmur : "+str(umur)+
-									"\nPusat Mengundi : "+negeri+"\n Saluran Mengundi : "+str(saluran))
-								sprsystem(username)
-							else :
-								print("\n-------------------------------------------------------------\n")
-								print("  Anda hanya perlu mengisi sama ada admin atau staf !!!")
-								print("\n-------------------------------------------------------------\n")
-								daftaradminspr(username)
-
-						else:
-							print("Username Anda telah berdaftar. Sila Masukkan username yang lain.")
-							sprsystem(username)
-
-					except mysql.connector.Error as err:
-						print("Failed to Insert data: {}".format(err))
+				for userdata in account:
+					a=userdata[0]
+					if bcrypt.checkpw(ic.encode('utf-8'), a.encode('utf-8')):
+						print("Nombor Ic Telah didaftar. Sila Masukkan Nombor Ic yang lain.")
 						sprsystem(username)
+
+				username2 = input("Sila Masukkan Username : ")
+				try:
+					projectdatabase = database()
+					mydbse = projectdatabase.cursor()
+					mydbse.execute("SELECT * FROM spr WHERE username=%s",
+						(username2,))
+					sameinpt = mydbse.fetchone()
+
+					if not sameinpt:
+						passwrd = "123"
+						level = input("Account yang anda daftar sebagai ? [Admin atau staf] : ")
+						level=level.lower()
+						if level=="admin" or level == "staf":
+							fullname = input("Sila Masukkan Nama Penuh : ")
+							fullname = fullname.upper()
+							saluran = random.randint(1, 9)
+							masa = "08:00 AM - 06:00 PM"
+							undianparti = "Belum Undi"
+							undianparti = bcrypt.hashpw(undianparti.encode('utf-8'), bcrypt.gensalt())
+							undian = 0
+							passwrd = bcrypt.hashpw(passwrd.encode('utf-8'), bcrypt.gensalt())
+							ic = bcrypt.hashpw(ic.encode('utf-8'), bcrypt.gensalt())
+
+							mydbse.execute("INSERT INTO spr"
+								"(ic, username, password, level)"
+								"VALUES(%s, %s , %s ,%s)",
+								(ic, username2, passwrd , level))
+
+							mydbse.execute("INSERT INTO user"
+								"(ic, fullname, date, gender, pusatmengundi, saluran, masa, undianparti, undian)"
+								"VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+								(ic, fullname, DOB, jantina, negeri, saluran, masa, undianparti, undian))
+
+							projectdatabase.commit()
+							print("Pendaftaran Selesai ...")
+							print("\n-------------------------------------------------------------\n")
+							print("Nama Penuh : "+fullname+"\nTarikh Lahir : "+DOB+"\nUmur : "+str(umur)+
+								"\nPusat Mengundi : "+negeri+"\nSaluran Mengundi : "+str(saluran))
+							sprsystem(username)
+						else :
+							print("\n-------------------------------------------------------------\n")
+							print("  Anda hanya perlu mengisi sama ada admin atau staf !!!")
+							print("\n-------------------------------------------------------------\n")
+							daftaradminspr(username)
+
+					else:
+						print("Username Anda telah berdaftar. Sila Masukkan username yang lain.")
+						sprsystem(username)
+
+				except mysql.connector.Error as err:
+					print("Failed to Insert data: {}".format(err))
+					sprsystem(username)
 					
 		except Exception as e:
 			print("Error:", e)
@@ -285,58 +289,169 @@ def daftarejenspr(username):
 		try:
 			projectdatabase = database()
 			mydbse = projectdatabase.cursor()
-			mydbse.execute("SELECT * FROM user")
-			account = mydbse.fetchone()
+			mydbse.execute("SELECT * FROM user ")
+			account = mydbse.fetchall()
 
 			if account:
-				if bcrypt.checkpw(ic.encode('utf-8'), account[0].encode('utf-8')):
-					print("Nombor Ic Telah didaftar. Sila Masukkan Nombor Ic yang lain.")
-					sprsystem(username)
-				else:
-					username2 = input("Sila Masukkan Username : ")
-					try:
-						projectdatabase = database()
-						mydbse = projectdatabase.cursor()
-						mydbse.execute("SELECT * FROM ejen WHERE username=%s",
-							(username2,))
-						sameinpt = mydbse.fetchone()
-
-						if not sameinpt:
-							passwrd = "123"
-							fullname = input("Sila Masukkan Nama Penuh : ")
-							fullname = fullname.upper()
-							saluran = random.randint(1, 9)
-							masa = "08:00 AM - 06:00 PM"
-							undianparti = "Belum Undi"
-							undianparti = bcrypt.hashpw(undianparti.encode('utf-8'), bcrypt.gensalt())
-							undian = 0
-							passwrd = bcrypt.hashpw(passwrd.encode('utf-8'), bcrypt.gensalt())
-							ic = bcrypt.hashpw(ic.encode('utf-8'), bcrypt.gensalt())
-
-							mydbse.execute("INSERT INTO ejen"
-								"(ic, username, password)"
-								"VALUES(%s, %s , %s)",
-								(ic, username2, passwrd))
-
-							mydbse.execute("INSERT INTO user"
-								"(ic, fullname, date, gender, pusatmengundi, saluran, masa, undianparti, undian)"
-								"VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-								(ic, fullname, DOB, jantina, negeri, saluran, masa, undianparti, undian))
-
-							projectdatabase.commit()
-							print("Pendaftaran Selesai ...")
-							print("\n-------------------------------------------------------------\n")
-							print("Nama Penuh : "+fullname+"\nTarikh Lahir : "+DOB+"\nUmur : "+str(umur)+
-								"\nPusat Mengundi : "+negeri+"\n Saluran Mengundi : "+str(saluran))
-							sprsystem(username)
-							
-						else:
-							print("Username Anda telah berdaftar. Sila Masukkan username yang lain.")
-							sprsystem(username)
-
-					except mysql.connector.Error as err:
-						print("Failed to Insert data: {}".format(err))
+				for userdata in account:
+					a=userdata[0]
+					if bcrypt.checkpw(ic.encode('utf-8'), a.encode('utf-8')):
+						print("Nombor Ic Telah didaftar. Sila Masukkan Nombor Ic yang lain.")
 						sprsystem(username)
+
+				username2 = input("Sila Masukkan Username : ")
+				try:
+					projectdatabase = database()
+					mydbse = projectdatabase.cursor()
+					mydbse.execute("SELECT * FROM ejen WHERE username=%s",
+						(username2,))
+					sameinpt = mydbse.fetchone()
+
+					if not sameinpt:
+						passwrd = "123"
+						fullname = input("Sila Masukkan Nama Penuh : ")
+						fullname = fullname.upper()
+						saluran = random.randint(1, 9)
+						masa = "08:00 AM - 06:00 PM"
+						undianparti = "Belum Undi"
+						undianparti = bcrypt.hashpw(undianparti.encode('utf-8'), bcrypt.gensalt())
+						undian = 0
+						passwrd = bcrypt.hashpw(passwrd.encode('utf-8'), bcrypt.gensalt())
+						ic = bcrypt.hashpw(ic.encode('utf-8'), bcrypt.gensalt())
+
+						mydbse.execute("INSERT INTO ejen"
+							"(ic, username, password)"
+							"VALUES(%s, %s , %s)",
+							(ic, username2, passwrd))
+
+						mydbse.execute("INSERT INTO user"
+							"(ic, fullname, date, gender, pusatmengundi, saluran, masa, undianparti, undian)"
+							"VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+							(ic, fullname, DOB, jantina, negeri, saluran, masa, undianparti, undian))
+
+						projectdatabase.commit()
+						print("Pendaftaran Selesai ...")
+						print("\n-------------------------------------------------------------\n")
+						print("Nama Penuh : "+fullname+"\nTarikh Lahir : "+DOB+"\nUmur : "+str(umur)+
+							"\nPusat Mengundi : "+negeri+"\nSaluran Mengundi : "+str(saluran))
+						sprsystem(username)
+							
+					else:
+						print("Username Anda telah berdaftar. Sila Masukkan username yang lain.")
+						sprsystem(username)
+
+				except mysql.connector.Error as err:
+					print("Failed to Insert data: {}".format(err))
+					sprsystem(username)
+					
+		except Exception as e:
+			print("Error:", e)
+			sprsystem(username)
+	except :
+		print("Nombor Ic Tidak Valid ... Sila pastikan anda mengisi nombor Ic yang betul..")
+		sprsystem(username)
+
+def daftaruser(username):
+	ic = input("Sila masukkan Nombor Ic : ")
+	try:
+		umur,DOB,jantina,negeri=ictoanything(ic,username)
+		try:
+			projectdatabase = database()
+			mydbse = projectdatabase.cursor()
+			mydbse.execute("SELECT * FROM user")
+			account = mydbse.fetchall()
+
+			if account:
+				for userdata in account:
+					a=userdata[0]
+					if bcrypt.checkpw(ic.encode('utf-8'), a.encode('utf-8')):
+						print("Nombor Ic Telah didaftar. Sila Masukkan Nombor Ic yang lain.")
+						sprsystem(username)
+				try:
+					projectdatabase = database()
+					mydbse = projectdatabase.cursor()
+					fullname = input("Sila Masukkan Nama Penuh : ")
+					fullname = fullname.upper()
+					saluran = random.randint(1, 9)
+					masa = "08:00 AM - 06:00 PM"
+					undianparti = "Belum Undi"
+					undianparti = bcrypt.hashpw(undianparti.encode('utf-8'), bcrypt.gensalt())
+					undian = 0
+					ic = bcrypt.hashpw(ic.encode('utf-8'), bcrypt.gensalt())
+
+					mydbse.execute("INSERT INTO user"
+						"(ic, fullname, date, gender, pusatmengundi, saluran, masa, undianparti, undian)"
+						"VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+						(ic, fullname, DOB, jantina, negeri, saluran, masa, undianparti, undian))
+
+					projectdatabase.commit()
+					print("Pendaftaran Selesai ...")
+					print("\n-------------------------------------------------------------\n")
+					print("Nama Penuh : "+fullname+"\nTarikh Lahir : "+DOB+"\nUmur : "+str(umur)+
+						"\nPusat Mengundi : "+negeri+"\nSaluran Mengundi : "+str(saluran))
+					sprsystem(username)
+
+				except mysql.connector.Error as err:
+					print("Failed to Insert data: {}".format(err))
+					sprsystem(username)
+					
+		except Exception as e:
+			print("Error:", e)
+			sprsystem(username)
+	except :
+		print("Nombor Ic Tidak Valid ... Sila pastikan anda mengisi nombor Ic yang betul..")
+		sprsystem(username)
+
+def daftarcalon(username):
+	ic = input("Sila masukkan Nombor Ic : ")
+	try:
+		umur,DOB,jantina,negeri=ictoanything(ic,username)
+		try:
+			projectdatabase = database()
+			mydbse = projectdatabase.cursor()
+			mydbse.execute("SELECT * FROM user")
+			account = mydbse.fetchall()
+
+			if account:
+				for userdata in account:
+					a=userdata[0]
+					if bcrypt.checkpw(ic.encode('utf-8'), a.encode('utf-8')):
+						print("Nombor Ic Telah didaftar. Sila Masukkan Nombor Ic yang lain.")
+						sprsystem(username)
+				try:
+					projectdatabase = database()
+					mydbse = projectdatabase.cursor()
+					fullname = input("Sila Masukkan Nama Penuh : ")
+					fullname = fullname.upper()
+					print("Negeri Bertanding : "+negeri)
+					parti = input("Sila Masukkan Parti Calon : ")
+					saluran = random.randint(1, 9)
+					masa = "08:00 AM - 06:00 PM"
+					undianparti = "Belum Undi"
+					undianparti = bcrypt.hashpw(undianparti.encode('utf-8'), bcrypt.gensalt())
+					undian = 0
+					ic = bcrypt.hashpw(ic.encode('utf-8'), bcrypt.gensalt())
+
+					mydbse.execute("INSERT INTO user"
+						"(ic, fullname, date, gender, pusatmengundi, saluran, masa, undianparti, undian)"
+						"VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+						(ic, fullname, DOB, jantina, negeri, saluran, masa, undianparti, undian))
+
+					mydbse.execute("INSERT INTO calon"
+						"(tempatbertanding, ic, fullname, parti)"
+						"VALUES(%s, %s, %s, %s)",
+						(negeri, ic, fullname, parti))
+
+					projectdatabase.commit()
+					print("Pendaftaran Selesai ...")
+					print("\n-------------------------------------------------------------\n")
+					print("Nama Penuh : "+fullname+"\nTarikh Lahir : "+DOB+"\nUmur : "+str(umur)+
+						"\nPusat Mengundi : "+negeri+"\nSaluran Mengundi : "+str(saluran))
+					sprsystem(username)
+
+				except mysql.connector.Error as err:
+					print("Failed to Insert data: {}".format(err))
+					sprsystem(username)
 					
 		except Exception as e:
 			print("Error:", e)
@@ -358,7 +473,7 @@ def sprsystem(username):
 		print("-------------------------------------------------------------")
 
 		try:
-			userchoice = int(input("Sila Pilih [1 atau 2 atau 3 atau 4 atau 5 atau 6 atau 7 atau 8 atau 9]: "))
+			userchoice = int(input("Sila Pilih [1 atau 2 atau 3 atau 4 atau 5 atau 6 atau 7 atau 8 atau 9 atau 10]: "))
 			print()
 			if userchoice == 1 or userchoice == 2:
 				if userchoice == 1:
@@ -372,7 +487,63 @@ def sprsystem(username):
 					print("-------------------------------------------------------------\n")
 					daftarejenspr(username)
 			elif userchoice == 3:
+				print("\n-------------------------------------------------------------")
+				print("                   Daftar User Baru")
+				print("-------------------------------------------------------------\n")
+				daftaruser(username)
+			elif userchoice == 4:
+				print("\n-------------------------------------------------------------")
+				print("                   Daftar Calon Pilih Raya")
+				print("-------------------------------------------------------------\n")
+				daftarcalon(username)
+			elif userchoice == 5:
 				print("belum siap")
+			elif userchoice == 6:
+				print("belum siap")
+			elif userchoice == 7:
+				print("belum siap")
+			elif userchoice == 8:
+				print("belum siap")
+			elif userchoice == 9:
+				print("belum siap")
+			elif userchoice == 10:
+				system()
+			else:
+				print("\n-------------------------------------------------------------\n")
+				print("  Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 atau 5 atau 6 atau 7 atau 8 atau 9 atau 10 !!!")
+				print("\n-------------------------------------------------------------\n")
+				sprsystem(username)
+		except ValueError:
+			print("\n-------------------------------------------------------------\n")
+			print("  Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 atau 5 atau 6 atau 7 atau 8 atau 9 atau 10 !!!")
+			print("\n-------------------------------------------------------------\n")
+			sprsystem(username)
+	else:
+		for row in table3:
+			for col in row:
+				print(col, end="\t")
+			print()
+		print("-------------------------------------------------------------")
+
+		try:
+			userchoice = int(input("Sila Pilih [1 atau 2 atau 3 atau 4 atau 5 atau 6 atau 7 atau 8 atau 9] : "))
+			print()
+			if userchoice == 1 or userchoice == 2:
+				if userchoice == 1:
+					print("\n-------------------------------------------------------------")
+					print("                   Daftar Ejen SPR Baru")
+					print("-------------------------------------------------------------\n")
+					daftarejenspr(username)
+				elif userchoice == 2:
+					print("\n-------------------------------------------------------------")
+					print("                   Daftar User Baru")
+					print("-------------------------------------------------------------\n")
+					daftaruser(username)
+			elif userchoice == 3:
+				print("\n-------------------------------------------------------------")
+				print("                   Daftar Calon Pilih Raya")
+				print("-------------------------------------------------------------\n")
+				daftarcalon(username)
 			elif userchoice == 4:
 				print("belum siap")
 			elif userchoice == 5:
@@ -393,46 +564,6 @@ def sprsystem(username):
 		except ValueError:
 			print("\n-------------------------------------------------------------\n")
 			print("  Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 atau 5 atau 6 atau 7 atau 8 atau 9 !!!")
-			print("\n-------------------------------------------------------------\n")
-			sprsystem(username)
-	else:
-		for row in table3:
-			for col in row:
-				print(col, end="\t")
-			print()
-		print("-------------------------------------------------------------")
-
-		try:
-			userchoice = int(input("Please Choose [1 or 2 or 3 or 4 or 5 or 6 or 7 or 8]: "))
-			print()
-			if userchoice == 1 or userchoice == 2:
-				if userchoice == 1:
-					print("\n-------------------------------------------------------------")
-					print("                   Daftar Ejen SPR Baru")
-					print("-------------------------------------------------------------\n")
-					daftarejenspr(username)
-				elif userchoice == 2:
-					print("belum siap")
-			elif userchoice == 3:
-				print("belum siap")
-			elif userchoice == 4:
-				print("belum siap")
-			elif userchoice == 5:
-				print("belum siap")
-			elif userchoice == 6:
-				print("belum siap")
-			elif userchoice == 7:
-				print("belum siap")
-			elif userchoice == 8:
-				system()
-			else:
-				print("\n-------------------------------------------------------------\n")
-				print("  Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 atau 5 atau 6 atau 7 atau 8 !!!")
-				print("\n-------------------------------------------------------------\n")
-				sprsystem(username)
-		except ValueError:
-			print("\n-------------------------------------------------------------\n")
-			print("  Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 atau 5 atau 6 atau 7 atau 8 !!!")
 			print("\n-------------------------------------------------------------\n")
 			sprsystem(username)
 
@@ -483,34 +614,34 @@ def usersystem(username):
 	print("User System Belum Siap")
 
 def user():
-	username = input("Sila masukkan Nombor Ic anda: ")
-
 	try:
+		username2 = input("Sila masukkan Nombor Ic anda: ")
 		projectdatabase = database()
 		mydbse = projectdatabase.cursor()
-		mydbse.execute("SELECT * FROM user ")
-		user_data = mydbse.fetchone()
+		mydbse.execute("SELECT * FROM user")
+		user_data = mydbse.fetchall()
 
 		if user_data:
-			if bcrypt.checkpw(username.encode('utf-8'), user_data[0].encode('utf-8')):
-				mydbse.execute("SELECT username FROM user WHERE ic=%s",
-					(user_data[0],))
-				username2 = mydbse.fetchone()[0]
+			for userdata in user_data:
+				a=userdata[0]
+				b=userdata[1]
+				
+				if bcrypt.checkpw(username2.encode('utf-8'), a.encode('utf-8')):
+					username=b
+					print("Selamat kembali, " + username + ".")
+					usersystem(username)
 
-				print("Selamat kembali, " + username2 + ".")
-				usersystem(username)
+			print("Nombor Ic anda tiada dalam data, Sila pastikan ic anda betul.")
+			askuser = input("Adakah anda mahu Log Masuk Y untuk ya atau mana-mana kunci untuk berhenti? [ Y atau mana-mana kunci ] : ")
+			askuser = askuser.upper()
+			if askuser == "Y":
+				print("\n-------------------------------------------------------------")
+				print("                    Log Masuk Sebagai User")
+				print("-------------------------------------------------------------\n")
+				user()
 			else:
-				print("Nombor Ic anda tiada dalam data, Sila pastikan ic anda betul.")
-				askuser = input("Adakah anda mahu Log Masuk Y untuk ya atau mana-mana kunci untuk berhenti? [ Y atau mana-mana kunci ] : ")
-				askuser = askuser.upper()
-				if askuser == "Y":
-					print("\n-------------------------------------------------------------")
-					print("                    Log Masuk Sebagai User")
-					print("-------------------------------------------------------------\n")
-					user()
-				else:
-					print("\n-------------------------------------------------------------")
-					system()
+				print("\n-------------------------------------------------------------")
+				system()
 
 	except mysql.connector.Error as err:
 		print("Gagal log masuk : {}".format(err))

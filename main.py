@@ -6,8 +6,9 @@ import random
 
 table = [
 	[" 1", "Pegawai SPR"],
-	[" 2", "User"], #check Pusat Mengundi, saluran, Masa, undi (PRU/PRN) , Show dah undi atau belum
-	[" 3", "Ejen Pilihan Raya"] #check no user ic, user()
+	[" 2", "Pengundi"],
+	[" 3", "Ejen Pilihan Raya"], #check no user ic, user()
+	[" 4", "Lihat Keputusan Pilihan Raya"] #BELUM
 ]
 
 table2 = [
@@ -15,11 +16,11 @@ table2 = [
 	[" 2", "Daftar Ejen Pilihan Raya Baru"],
 	[" 3", "Daftar User Baru"],
 	[" 4", "Daftar calon Pilihan Raya"],
-	[" 5", "Lihat Kesemua Calon"],					#belum
-	[" 6", "Lihat Keputusan Penuh Pilihan Raya"], 	#belum
-	[" 7", "Lihat Keputusan Pilihan Raya"], 		#belum
-	[" 8", "Lihat Keputusan Penuh Pilihan Raya"], 	#belum
-	[" 9", "Undi"], 								#belum
+	[" 5", "Lihat Kesemua Calon"],
+	[" 6", "Lihat Bilangan Kehadiran Pilihan Raya"],
+	[" 7", "Lihat Keputusan Pilihan Raya"],
+	[" 8", "Lihat Keputusan Penuh Pilihan Raya"],
+	[" 9", "Undi"],
 	[" 10", "Log Out"]
 ]
 
@@ -27,12 +28,21 @@ table3 = [
 	[" 1", "Daftar Ejen Pilihan Raya Baru"],
 	[" 2", "Daftar User Baru"],
 	[" 3", "Daftar calon Pilihan Raya"],
-	[" 4", "Lihat Kesemua Calon"],					#belum
-	[" 5", "Lihat Bilangan Kehadiran Pilihan Raya"],#belum
-	[" 6", "Lihat Keputusan Pilihan Raya"], 		#belum
-	[" 7", "Lihat Keputusan Penuh Pilihan Raya"], 	#belum
-	[" 8", "Undi"], 								#belum
+	[" 4", "Lihat Kesemua Calon"],
+	[" 5", "Lihat Bilangan Kehadiran Pilihan Raya"],
+	[" 6", "Lihat Keputusan Pilihan Raya"],
+	[" 7", "Lihat Keputusan Penuh Pilihan Raya"],
+	[" 8", "Undi"],
 	[" 9", "Log Out"]
+]
+
+table4 = [
+	[" 1", "Barisan National"],
+	[" 2", "Perikatan National"],
+	[" 3", "Pakatan Harapan"],
+	[" 4", "PAS"],
+	[" 5", "Bebas"],
+	[" 6", "Muda"]
 ]
 
 def database():
@@ -483,6 +493,226 @@ def calon(username):
 		print("Gagal Mencari Calon: {}".format(err))
 		sprsystem(username)
 
+def keputusannegeri(username):
+	try:
+		negeri=input("Sila Masukkan Negeri : ")
+		projectdatabase = database()
+		mydbse = projectdatabase.cursor()
+		mydbse.execute("SELECT * FROM user WHERE pusatmengundi=%s", (negeri,))
+		kehadiran = mydbse.fetchall()
+
+		if kehadiran:
+			total1 = 0
+			total2 = 0
+			total3 = 0
+			total4 = 0
+			total5 = 0
+			total6 = 0
+
+			parti1 = "Barisan National"
+			parti2 = "Perikatan National"
+			parti3 = "Pakatan Harapan"
+			parti4 = "PAS"
+			parti5 = "Bebas"
+			parti6 = "Muda"
+
+			for kehadiran2 in kehadiran:
+				a=kehadiran2[7]
+				b=kehadiran2[8]
+				if bcrypt.checkpw(parti1.encode('utf-8'), a.encode('utf-8')):
+					total1 +=b
+				elif bcrypt.checkpw(parti2.encode('utf-8'), a.encode('utf-8')):
+					total2 +=b
+				elif bcrypt.checkpw(parti3.encode('utf-8'), a.encode('utf-8')):
+					total3 +=b
+				elif bcrypt.checkpw(parti4.encode('utf-8'), a.encode('utf-8')):
+					total4 +=b
+				elif bcrypt.checkpw(parti5.encode('utf-8'), a.encode('utf-8')):
+					total5 +=b
+				elif bcrypt.checkpw(parti6.encode('utf-8'), a.encode('utf-8')):
+					total6 +=b
+				print("\n-------------------------------------------------------------")
+				print("             Keputusan Pilihan Raya di : "+negeri)
+				print("-------------------------------------------------------------\n")
+				print(parti1+" : "+str(total1)+"\n"+parti2+" : "+str(total2)
+					+"\n"+parti3+" : "+str(total3)+"\n"+parti4+" : "+str(total4)
+					+"\n"+parti5+" : "+str(total5)+"\n"+parti6+" : "+str(total6))
+
+			sprsystem(username)
+		else:
+			print("Tiada Keputusan")
+			sprsystem(username)
+	except mysql.connector.Error as err:
+		print("Gagal Mencari Calon: {}".format(err))
+		sprsystem(username)
+
+def kehadiran(username):
+	try:
+		projectdatabase = database()
+		mydbse = projectdatabase.cursor()
+		mydbse.execute("SELECT undian FROM user")
+		kehadiran = mydbse.fetchall()
+
+		if kehadiran:
+			total = 0
+			for kehadiran2 in kehadiran:
+				jumlah = int(kehadiran2[0])
+				total += jumlah
+
+			print("Jumlah Kehadiran Pilihan Raya : "+str(total))
+			sprsystem(username)
+		else:
+			print("Tiada Senarai Calon")
+			sprsystem(username)
+	except mysql.connector.Error as err:
+		print("Gagal Mencari Calon: {}".format(err))
+		sprsystem(username)
+
+def keputusanpenuh(username):
+	try:
+		projectdatabase = database()
+		mydbse = projectdatabase.cursor()
+		mydbse.execute("SELECT * FROM user ")
+		kehadiran = mydbse.fetchall()
+
+		if kehadiran:
+			total1 = 0
+			total2 = 0
+			total3 = 0
+			total4 = 0
+			total5 = 0
+			total6 = 0
+
+			parti1 = "Barisan National"
+			parti2 = "Perikatan National"
+			parti3 = "Pakatan Harapan"
+			parti4 = "PAS"
+			parti5 = "Bebas"
+			parti6 = "Muda"
+
+			for kehadiran2 in kehadiran:
+				a=kehadiran2[7]
+				b=kehadiran2[8]
+				if bcrypt.checkpw(parti1.encode('utf-8'), a.encode('utf-8')):
+					total1 +=b
+				elif bcrypt.checkpw(parti2.encode('utf-8'), a.encode('utf-8')):
+					total2 +=b
+				elif bcrypt.checkpw(parti3.encode('utf-8'), a.encode('utf-8')):
+					total3 +=b
+				elif bcrypt.checkpw(parti4.encode('utf-8'), a.encode('utf-8')):
+					total4 +=b
+				elif bcrypt.checkpw(parti5.encode('utf-8'), a.encode('utf-8')):
+					total5 +=b
+				elif bcrypt.checkpw(parti6.encode('utf-8'), a.encode('utf-8')):
+					total6 +=b
+			print("\n-------------------------------------------------------------")
+			print("                    Keputusan Pilihan Raya")
+			print("-------------------------------------------------------------\n")
+			print(parti1+" : "+str(total1)+"\n"+parti2+" : "+str(total2)
+				+"\n"+parti3+" : "+str(total3)+"\n"+parti4+" : "+str(total4)
+				+"\n"+parti5+" : "+str(total5)+"\n"+parti6+" : "+str(total6))
+
+			sprsystem(username)
+		else:
+			print("Tiada Keputusan")
+			sprsystem(username)
+	except mysql.connector.Error as err:
+		print("Gagal Mencari Calon: {}".format(err))
+		sprsystem(username)
+
+def detailundi(fulname,ic,dob,gender,pusat,saluran,masa,hadirundi):
+	print("\n-------------------------------------------------------------\n")
+	print("                   Maklumat Pengundi")
+	print("\n-------------------------------------------------------------\n")
+	print("Nama Penuh : "+fulname+"\nNombor Ic : "+ic+"\nTarikh Lahir : "+dob
+		+"\nPusat Mengundi : "+pusat+"\nSaluran : "+saluran+"\nMasa Mengundi : "+masa
+		+"\nStatus Pengundi : "+hadirundi)
+	print("\n-------------------------------------------------------------\n")
+
+def undi(username):
+	print("-------------------------------------------------------------")
+	print("                   Selamat Mengundi")
+	print("-------------------------------------------------------------\n")
+	try:
+		username2 = input("Sila masukkan Nombor Ic anda: ")
+		projectdatabase = database()
+		mydbse = projectdatabase.cursor()
+		mydbse.execute("SELECT * FROM user")
+		user_data = mydbse.fetchall()
+
+		if user_data:
+			for userdata in user_data:
+				a=userdata[0]
+				b=userdata[1]
+				c=userdata[2]
+				d=userdata[3]
+				e=userdata[4]
+				f=userdata[5]
+				g=userdata[6]
+				h=userdata[8]
+				
+				if bcrypt.checkpw(username2.encode('utf-8'), a.encode('utf-8')):
+					fulname = b
+					ic = username2
+					dob = c
+					gender = d
+					pusat = e
+					saluran = f
+					masa = g
+					if h == 0:
+						hadirundi = "Belum Mengundi"
+						detailundi(fulname,ic,dob,gender,pusat,saluran,masa,hadirundi)
+						for row in table4:
+							for col in row:
+								print(col, end="\t")
+							print()
+						print("\n-------------------------------------------------------------\n")
+
+						try:
+							undiparti = int(input("Sila Pilih Parti Pilihan Anda [1 atau 2 atau 3 atau 4 atau 5 atau 6]: "))
+							if undiparti == 1 or undiparti == 2 or undiparti == 3 or undiparti == 4 or undiparti == 5 or undiparti == 6:
+								undipartix = table4[undiparti-1][1]
+								undipartix = bcrypt.hashpw(undipartix.encode('utf-8'), bcrypt.gensalt())
+
+								mydbse.execute("UPDATE user SET undianparti=%s, undian=%s WHERE fullname=%s",
+									(undipartix,"1", fulname))
+								projectdatabase.commit()
+								print("Undian Anda Telah Disimpan dalam database. Terima Kasih Kerana Mengundi")
+								system()
+							else:
+								print("\n-------------------------------------------------------------\n")
+								print("  Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 atau 5 atau 6 !!!")
+								print("\n-------------------------------------------------------------\n")
+								undi(username)
+						except:
+							print("\n-------------------------------------------------------------\n")
+							print("  Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 atau 5 atau 6 !!!")
+							print("\n-------------------------------------------------------------\n")
+							undi(username)
+					else:
+						hadirundi = "Sudah Mengundi"
+						detailundi(fulname,ic,dob,gender,pusat,saluran,masa,hadirundi)
+						print("Anda Hanya Boleh Mengundi Sekali Sahaja......")
+						if username != "" :
+							sprsystem(username)
+						else :
+							system()
+
+			print("Nombor Ic anda tiada dalam data, Sila pastikan ic anda betul.")
+			askuser = input("Adakah anda mahu Log Masuk Y untuk ya atau mana-mana kunci untuk berhenti? [ Y atau mana-mana kunci ] : ")
+			askuser = askuser.upper()
+			if askuser == "Y":
+				print("\n-------------------------------------------------------------")
+				print("                    Log Masuk Sebagai User")
+				print("-------------------------------------------------------------\n")
+				user()
+			else:
+				print("\n-------------------------------------------------------------")
+				system()
+
+	except mysql.connector.Error as err:
+		print("Gagal log masuk : {}".format(err))
+
 def sprsystem(username):
 	username=username.lower()
 	print("\n-------------------------------------------------------------")
@@ -516,22 +746,31 @@ def sprsystem(username):
 				daftaruser(username)
 			elif userchoice == 4:
 				print("\n-------------------------------------------------------------")
-				print("                   Daftar Calon Pilih Raya")
+				print("                   Daftar Calon Pilihan Raya")
 				print("-------------------------------------------------------------\n")
 				daftarcalon(username)
 			elif userchoice == 5:
 				print("\n-------------------------------------------------------------")
-				print("                   Senarai Calon Pilih Raya")
+				print("                   Senarai Calon Pilihan Raya")
 				print("-------------------------------------------------------------\n")
 				calon(username)
 			elif userchoice == 6:
-				print("belum siap")
+				print("\n-------------------------------------------------------------")
+				print("                   Kehadiran Pilihan Raya")
+				print("-------------------------------------------------------------\n")
+				kehadiran(username)
 			elif userchoice == 7:
-				print("belum siap")
+				print("\n-------------------------------------------------------------")
+				print("                   Keputusan Negeri Pilihan Raya")
+				print("-------------------------------------------------------------\n")
+				keputusannegeri(username)
 			elif userchoice == 8:
-				print("belum siap")
+				print("\n-------------------------------------------------------------")
+				print("                   Keputusan Penuh Pilihan Raya")
+				print("-------------------------------------------------------------\n")
+				keputusanpenuh(username)
 			elif userchoice == 9:
-				print("belum siap")
+				undi(username)
 			elif userchoice == 10:
 				system()
 			else:
@@ -571,15 +810,27 @@ def sprsystem(username):
 				print("-------------------------------------------------------------\n")
 				daftarcalon(username)
 			elif userchoice == 4:
-				print("belum siap")
+				print("\n-------------------------------------------------------------")
+				print("                   Senarai Calon Pilih Raya")
+				print("-------------------------------------------------------------\n")
+				calon(username)
 			elif userchoice == 5:
-				print("belum siap")
+				print("\n-------------------------------------------------------------")
+				print("                   Kehadiran Pilih Raya")
+				print("-------------------------------------------------------------\n")
+				kehadiran(username)
 			elif userchoice == 6:
-				print("belum siap")
+				print("\n-------------------------------------------------------------")
+				print("                   Keputusan Negeri Pilihan Raya")
+				print("-------------------------------------------------------------\n")
+				keputusannegeri(username)
 			elif userchoice == 7:
-				print("belum siap")
+				print("\n-------------------------------------------------------------")
+				print("                   Keputusan Penuh Pilihan Raya")
+				print("-------------------------------------------------------------\n")
+				keputusanpenuh(username)
 			elif userchoice == 8:
-				print("belum siap")
+				undi(username)
 			elif userchoice == 9:
 				system()
 			else:
@@ -626,45 +877,6 @@ def spr(count):
 				print("                    Log Masuk Sebagai Pegawai SPR")
 				print("-------------------------------------------------------------\n")
 				spr(3)
-			else:
-				print("\n-------------------------------------------------------------")
-				system()
-
-	except mysql.connector.Error as err:
-		print("Gagal log masuk : {}".format(err))
-
-def usersystem(username):
-	print("\n-------------------------------------------------------------")
-	print("                         "+username)
-	print("-------------------------------------------------------------\n")
-	print("User System Belum Siap")
-
-def user():
-	try:
-		username2 = input("Sila masukkan Nombor Ic anda: ")
-		projectdatabase = database()
-		mydbse = projectdatabase.cursor()
-		mydbse.execute("SELECT * FROM user")
-		user_data = mydbse.fetchall()
-
-		if user_data:
-			for userdata in user_data:
-				a=userdata[0]
-				b=userdata[1]
-				
-				if bcrypt.checkpw(username2.encode('utf-8'), a.encode('utf-8')):
-					username=b
-					print("Selamat kembali, " + username + ".")
-					usersystem(username)
-
-			print("Nombor Ic anda tiada dalam data, Sila pastikan ic anda betul.")
-			askuser = input("Adakah anda mahu Log Masuk Y untuk ya atau mana-mana kunci untuk berhenti? [ Y atau mana-mana kunci ] : ")
-			askuser = askuser.upper()
-			if askuser == "Y":
-				print("\n-------------------------------------------------------------")
-				print("                    Log Masuk Sebagai User")
-				print("-------------------------------------------------------------\n")
-				user()
 			else:
 				print("\n-------------------------------------------------------------")
 				system()
@@ -737,15 +949,18 @@ def system():
 				print("-------------------------------------------------------------\n")
 				spr(count)
 			elif userchoice == 2:
-				print("\n-------------------------------------------------------------")
-				print("                    Log Masuk Sebagai User")
-				print("-------------------------------------------------------------\n")
-				user()
+				username=""
+				undi(username)
 		elif userchoice == 3:
 			print("\n-------------------------------------------------------------")
 			print("                    Log Masuk Sebagai Ejen SPR")
 			print("-------------------------------------------------------------\n")
 			ejen(count)
+		elif userchoice == 4:
+			print("\n-------------------------------------------------------------")
+			print("                    Lihat Keputusan Pilihan")
+			print("-------------------------------------------------------------\n")
+			print("Belum Siap")
 		else:
 			print("\n-------------------------------------------------------------\n")
 			print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 !!!")

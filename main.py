@@ -7,7 +7,7 @@ import random
 table = [
 	[" 1", "Pegawai SPR"],
 	[" 2", "Pengundi"],
-	[" 3", "Ejen Pilihan Raya"], #check no user ic, user()
+	[" 3", "Ejen Pilihan Raya"],
 	[" 4", "Lihat Keputusan Pilihan Raya"] #BELUM
 ]
 
@@ -43,6 +43,12 @@ table4 = [
 	[" 4", "PAS"],
 	[" 5", "Bebas"],
 	[" 6", "Muda"]
+]
+
+table5 = [
+	[" 1", "Semak Maklumat Pengundi"],
+	[" 2", "Undi"],
+	[" 3", "Log Out"]
 ]
 
 def database():
@@ -629,7 +635,7 @@ def detailundi(fulname,ic,dob,gender,pusat,saluran,masa,hadirundi):
 		+"\nStatus Pengundi : "+hadirundi)
 	print("\n-------------------------------------------------------------\n")
 
-def undi(username):
+def undi(username,cat):
 	print("-------------------------------------------------------------")
 	print("                   Selamat Mengundi")
 	print("-------------------------------------------------------------\n")
@@ -678,23 +684,32 @@ def undi(username):
 									(undipartix,"1", fulname))
 								projectdatabase.commit()
 								print("Undian Anda Telah Disimpan dalam database. Terima Kasih Kerana Mengundi")
-								system()
+								if username != "" :
+									if cat == "spr":
+										sprsystem(username)
+									elif cat =="ejen" :
+										ejensystem(username)
+								else :
+									system()
 							else:
 								print("\n-------------------------------------------------------------\n")
 								print("  Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 atau 5 atau 6 !!!")
 								print("\n-------------------------------------------------------------\n")
-								undi(username)
+								undi(username,cat)
 						except:
 							print("\n-------------------------------------------------------------\n")
 							print("  Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 atau 5 atau 6 !!!")
 							print("\n-------------------------------------------------------------\n")
-							undi(username)
+							undi(username,cat)
 					else:
 						hadirundi = "Sudah Mengundi"
 						detailundi(fulname,ic,dob,gender,pusat,saluran,masa,hadirundi)
 						print("Anda Hanya Boleh Mengundi Sekali Sahaja......")
 						if username != "" :
-							sprsystem(username)
+							if cat == "spr":
+								sprsystem(username)
+							elif cat =="ejen" :
+								ejensystem(username)
 						else :
 							system()
 
@@ -702,13 +717,13 @@ def undi(username):
 			askuser = input("Adakah anda mahu Log Masuk Y untuk ya atau mana-mana kunci untuk berhenti? [ Y atau mana-mana kunci ] : ")
 			askuser = askuser.upper()
 			if askuser == "Y":
-				print("\n-------------------------------------------------------------")
-				print("                    Log Masuk Sebagai User")
-				print("-------------------------------------------------------------\n")
-				user()
+				undi(username,cat)
 			else:
 				print("\n-------------------------------------------------------------")
-				system()
+				if username != "" :
+					sprsystem(username)
+				else :
+					system()
 
 	except mysql.connector.Error as err:
 		print("Gagal log masuk : {}".format(err))
@@ -770,7 +785,8 @@ def sprsystem(username):
 				print("-------------------------------------------------------------\n")
 				keputusanpenuh(username)
 			elif userchoice == 9:
-				undi(username)
+				cat = "spr"
+				undi(username,cat)
 			elif userchoice == 10:
 				system()
 			else:
@@ -830,7 +846,7 @@ def sprsystem(username):
 				print("-------------------------------------------------------------\n")
 				keputusanpenuh(username)
 			elif userchoice == 8:
-				undi(username)
+				undi(username,cat)
 			elif userchoice == 9:
 				system()
 			else:
@@ -884,11 +900,85 @@ def spr(count):
 	except mysql.connector.Error as err:
 		print("Gagal log masuk : {}".format(err))
 
+def detailpengundi(username):
+	print("-------------------------------------------------------------")
+	print("                   Maklumat Pengundi")
+	print("-------------------------------------------------------------\n")
+	try:
+		username2 = input("Sila masukkan Nombor Ic : ")
+		projectdatabase = database()
+		mydbse = projectdatabase.cursor()
+		mydbse.execute("SELECT * FROM user")
+		user_data = mydbse.fetchall()
+
+		if user_data:
+			for userdata in user_data:
+				a=userdata[0]
+				b=userdata[1]
+				c=userdata[2]
+				d=userdata[3]
+				e=userdata[4]
+				f=userdata[5]
+				g=userdata[6]
+				h=userdata[8]
+				
+				if bcrypt.checkpw(username2.encode('utf-8'), a.encode('utf-8')):
+					fulname = b
+					ic = username2
+					dob = c
+					gender = d
+					pusat = e
+					saluran = f
+					masa = g
+					if h == 0:
+						hadirundi = "Belum Mengundi"
+						detailundi(fulname,ic,dob,gender,pusat,saluran,masa,hadirundi)
+						ejensystem(username)
+					else:
+						hadirundi = "Sudah Mengundi"
+						detailundi(fulname,ic,dob,gender,pusat,saluran,masa,hadirundi)
+						ejensystem(username)
+
+			print("Nombor Ic tiada dalam data, Sila pastikan ic anda betul.")
+			askuser = input("Adakah anda mahu Log Masuk Y untuk ya atau mana-mana kunci untuk berhenti? [ Y atau mana-mana kunci ] : ")
+			askuser = askuser.upper()
+			if askuser == "Y":
+				detailpengundi(username)
+			else:
+				print("\n-------------------------------------------------------------")
+				ejensystem(username)
+
+	except mysql.connector.Error as err:
+		print("Gagal log masuk : {}".format(err))
+
 def ejensystem(username):
 	print("\n-------------------------------------------------------------")
 	print("                    Ejen SPR : "+username)
 	print("-------------------------------------------------------------\n")
-	print("ejen System Belum Siap")
+	for row in table5:
+		for col in row:
+			print(col, end="\t")
+		print()
+	print("-------------------------------------------------------------")
+	try:
+		userchoice = int(input("Sila Pilih [1 atau 2 atau 3]: "))
+		print()
+		if userchoice == 1 or userchoice == 2:
+			if userchoice == 1:
+				detailpengundi(username)
+			elif userchoice == 2:
+				cat = "ejen"
+				undi(username,cat)
+		elif userchoice == 3:
+			system()
+		else:
+			print("\n-------------------------------------------------------------\n")
+			print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 !!!")
+			print("\n-------------------------------------------------------------\n")
+	except ValueError:
+		print("\n-------------------------------------------------------------\n")
+		print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 !!!")
+		print("\n-------------------------------------------------------------\n")
 
 def ejen(count):
 	username = input("Sila Masukkan Username Anda: ")
@@ -940,7 +1030,7 @@ def system():
 	print("-------------------------------------------------------------")
 
 	try:
-		userchoice = int(input("Sila Pilih [1 atau 2 atau 3]: "))
+		userchoice = int(input("Sila Pilih [1 atau 2 atau 3 atau 4]: "))
 		print()
 		if userchoice == 1 or userchoice == 2:
 			if userchoice == 1:
@@ -950,7 +1040,8 @@ def system():
 				spr(count)
 			elif userchoice == 2:
 				username=""
-				undi(username)
+				cat=""
+				undi(username,cat)
 		elif userchoice == 3:
 			print("\n-------------------------------------------------------------")
 			print("                    Log Masuk Sebagai Ejen SPR")
@@ -963,11 +1054,11 @@ def system():
 			print("Belum Siap")
 		else:
 			print("\n-------------------------------------------------------------\n")
-			print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 !!!")
+			print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 !!!")
 			print("\n-------------------------------------------------------------\n")
 	except ValueError:
 		print("\n-------------------------------------------------------------\n")
-		print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 !!!")
+		print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 !!!")
 		print("\n-------------------------------------------------------------\n")
 
 createdatabase()

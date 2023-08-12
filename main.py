@@ -8,7 +8,7 @@ table = [
 	[" 1", "Pegawai SPR"],
 	[" 2", "Pengundi"],
 	[" 3", "Ejen Pilihan Raya"],
-	[" 4", "Lihat Keputusan Pilihan Raya"] #BELUM
+	[" 4", "Lihat Keputusan Pilihan Raya"]
 ]
 
 table2 = [
@@ -49,6 +49,12 @@ table5 = [
 	[" 1", "Semak Maklumat Pengundi"],
 	[" 2", "Undi"],
 	[" 3", "Log Out"]
+]
+
+table6 = [
+	[" 1", "Keputusan Pilihan Raya Negeri"],
+	[" 2", "Keputusan Penuh Pilihan Raya"],
+	[" 3", "Back"]
 ]
 
 def database():
@@ -542,15 +548,25 @@ def keputusannegeri(username):
 				print("-------------------------------------------------------------\n")
 				print(parti1+" : "+str(total1)+"\n"+parti2+" : "+str(total2)
 					+"\n"+parti3+" : "+str(total3)+"\n"+parti4+" : "+str(total4)
-					+"\n"+parti5+" : "+str(total5)+"\n"+parti6+" : "+str(total6))
+					+"\n"+parti5+" : "+str(total5)+"\n"+parti6+" : "+str(total6)+"\n")
 
-			sprsystem(username)
+			if username == "":
+				system()
+			else:
+				sprsystem(username)
 		else:
 			print("Tiada Keputusan")
-			sprsystem(username)
+			if username == "":
+				system()
+			else:
+				sprsystem(username)
+
 	except mysql.connector.Error as err:
 		print("Gagal Mencari Calon: {}".format(err))
-		sprsystem(username)
+		if username == "":
+			system()
+		else:
+			sprsystem(username)
 
 def kehadiran(username):
 	try:
@@ -616,15 +632,25 @@ def keputusanpenuh(username):
 			print("-------------------------------------------------------------\n")
 			print(parti1+" : "+str(total1)+"\n"+parti2+" : "+str(total2)
 				+"\n"+parti3+" : "+str(total3)+"\n"+parti4+" : "+str(total4)
-				+"\n"+parti5+" : "+str(total5)+"\n"+parti6+" : "+str(total6))
+				+"\n"+parti5+" : "+str(total5)+"\n"+parti6+" : "+str(total6)+"\n")
 
-			sprsystem(username)
+			if username == "":
+				system()
+			else:
+				sprsystem(username)
 		else:
 			print("Tiada Keputusan")
-			sprsystem(username)
+			if username == "":
+				system()
+			else:
+				sprsystem(username)
+
 	except mysql.connector.Error as err:
 		print("Gagal Mencari Calon: {}".format(err))
-		sprsystem(username)
+		if username == "":
+			system()
+		else:
+			sprsystem(username)
 
 def detailundi(fulname,ic,dob,gender,pusat,saluran,masa,hadirundi):
 	print("\n-------------------------------------------------------------\n")
@@ -1020,8 +1046,39 @@ def ejen(count):
 	except mysql.connector.Error as err:
 		print("Gagal log masuk : {}".format(err))
 
+def resultviewspr():
+	print("-------------------------------------------------------------")
+	for row in table6:
+		for col in row:
+			print(col, end="\t")
+		print()
+	print("-------------------------------------------------------------")
+
+	try:
+		userchoice = int(input("Sila Pilih [1 atau 2 atau 3]: "))
+		print()
+		if userchoice == 1 or userchoice == 2:
+			if userchoice == 1:
+				username=""
+				keputusannegeri(username)
+			elif userchoice == 2:
+				username=""
+				keputusanpenuh(username)
+		elif userchoice == 3:
+			system()
+		else:
+			print("\n-------------------------------------------------------------\n")
+			print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 !!!")
+			print("\n-------------------------------------------------------------\n")
+	except ValueError:
+		print("\n-------------------------------------------------------------\n")
+		print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 !!!")
+		print("\n-------------------------------------------------------------\n")
+
 def system():
 	count=3
+	print("-------------------------------------------------------------")
+	print("               SELAMAT DATANG KE SISTEM MY UNDI")
 	print("-------------------------------------------------------------")
 	for row in table:
 		for col in row:
@@ -1049,9 +1106,9 @@ def system():
 			ejen(count)
 		elif userchoice == 4:
 			print("\n-------------------------------------------------------------")
-			print("                    Lihat Keputusan Pilihan")
+			print("                    Lihat Keputusan Pilihan Raya")
 			print("-------------------------------------------------------------\n")
-			print("Belum Siap")
+			resultviewspr()
 		else:
 			print("\n-------------------------------------------------------------\n")
 			print("     Anda hanya perlu mengisi sama ada 1 atau 2 atau 3 atau 4 !!!")

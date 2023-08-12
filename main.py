@@ -20,7 +20,7 @@ table2 = [
 	[" 7", "Lihat Keputusan Pilihan Raya"], 		#belum
 	[" 8", "Lihat Keputusan Penuh Pilihan Raya"], 	#belum
 	[" 9", "Undi"], 								#belum
-	[" 10", "Log Out"] 								#belum
+	[" 10", "Log Out"]
 ]
 
 table3 = [
@@ -32,7 +32,7 @@ table3 = [
 	[" 6", "Lihat Keputusan Pilihan Raya"], 		#belum
 	[" 7", "Lihat Keputusan Penuh Pilihan Raya"], 	#belum
 	[" 8", "Undi"], 								#belum
-	[" 9", "Log Out"] 								#belum
+	[" 9", "Log Out"]
 ]
 
 def database():
@@ -460,6 +460,29 @@ def daftarcalon(username):
 		print("Nombor Ic Tidak Valid ... Sila pastikan anda mengisi nombor Ic yang betul..")
 		sprsystem(username)
 
+def calon(username):
+	try:
+		projectdatabase = database()
+		mydbse = projectdatabase.cursor()
+		mydbse.execute("SELECT * FROM calon")
+		calonlist = mydbse.fetchall()
+
+		if calonlist:
+			for calon2 in calonlist:
+				negeri = calon2[0]
+				fullname = calon2[2]
+				parti = calon2[3]
+
+				print("Tempat Bertanding : "+negeri+"\nNama Penuh : "+fullname+"\nParti : "+parti)
+				print("\n-------------------------------------------------------------")
+			sprsystem(username)
+		else:
+			print("Tiada Senarai Calon")
+			sprsystem(username)
+	except mysql.connector.Error as err:
+		print("Gagal Mencari Calon: {}".format(err))
+		sprsystem(username)
+
 def sprsystem(username):
 	username=username.lower()
 	print("\n-------------------------------------------------------------")
@@ -497,7 +520,10 @@ def sprsystem(username):
 				print("-------------------------------------------------------------\n")
 				daftarcalon(username)
 			elif userchoice == 5:
-				print("belum siap")
+				print("\n-------------------------------------------------------------")
+				print("                   Senarai Calon Pilih Raya")
+				print("-------------------------------------------------------------\n")
+				calon(username)
 			elif userchoice == 6:
 				print("belum siap")
 			elif userchoice == 7:
